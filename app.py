@@ -15,7 +15,7 @@ import secrets
 HF_TOKEN = st.secrets["HF_TOKEN"]
 
 
-loader = PyPDFLoader("sodapdf-converted.pdf")
+loader = PyPDFLoader("sodapdf-converted(1).pdf")
 #Read the information scraped from all the websites
 docs = loader.load()
 
