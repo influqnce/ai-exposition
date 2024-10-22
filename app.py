@@ -2,6 +2,7 @@ import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -13,16 +14,14 @@ import secrets
 
 HF_TOKEN = st.secrets["HF_TOKEN"]
 
+
+loader = PyPDFLoader("sodapdf-converted.pdf")
 #Read the information scraped from all the websites
-with open('test.txt', 'r', encoding='utf-8') as file:
-    file_content = file.read()
+docs = loader.load()
 
 #split the data
 textsplitter = CharacterTextSplitter(separator="\n", chunk_size=1000,chunk_overlap=150,length_function=len)
-text_chunks = textsplitter.split_text(file_content)
-
-#Convert type of Document
-documents = [Document(page_content=chunk) for chunk in text_chunks]
+text_chunks = textsplitter.split_documents(docs)
 
 #LLM Initialization
 model_name = "sentence-transformers/all-mpnet-base-v2"
@@ -35,7 +34,7 @@ embeddings = HuggingFaceEmbeddings(
 )
 
 #Vector Database Initialization
-db = FAISS.from_documents(documents, embeddings)
+db = FAISS.from_documents(docs, embeddings)
 retriever = db.as_retriever()
 
 
